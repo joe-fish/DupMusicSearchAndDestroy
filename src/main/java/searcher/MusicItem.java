@@ -1,16 +1,15 @@
 package searcher;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import javax.swing.DefaultListModel;
 
 
 public class MusicItem {
 	
 	private File musicFile;
-	private List<File> duplicates = new ArrayList<File>();
+//	private List<File> duplicates = new ArrayList<File>();
+	private DefaultListModel<File> duplicatesModel = new DefaultListModel<File>();
+	
 	private boolean hasDupes = false;
 	private String songName = "";
 
@@ -26,16 +25,17 @@ public class MusicItem {
 		return musicFile.getName();
 	}
 	
-	public List<File> getDuplicates() {
-		return duplicates;
+	public DefaultListModel<File> getDuplicatesModel() {
+		return duplicatesModel;
 	}
 
-	public void setDuplicates(List<File> duplicates) {
-		this.duplicates = duplicates;
-	}
+//	public void setDuplicates(List<File> duplicates) {
+//		this.duplicates = duplicates;
+//		duplicates.forEach(item -> duplicatesModel.addElement(item));
+//	}
 	
 	public void addDupe(File duplicateFile) {
-		duplicates.add(duplicateFile);
+		duplicatesModel.addElement(duplicateFile);
 	}
 
 	public boolean getHasDupes() {

@@ -11,6 +11,10 @@ import javax.swing.JLabel;
 
 import java.awt.BorderLayout;
 import javax.swing.JToolBar;
+
+import searcher.MusicItem;
+import searcher.Searcher;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.AbstractAction;
@@ -31,6 +35,7 @@ public class AppWindow {
 
 	private JFrame frame;
 	private final JPanel panel = new JPanel();
+	private File searchFolder = null;
 
 
 	/**
@@ -110,7 +115,7 @@ public class AppWindow {
 		splitPane.setBottomComponent(dupePane);
 		dupePane.setViewportView(panel);
 		
-		JList<File> searchList = new JList<File>();
+		JList<MusicItem> searchList = new JList<MusicItem>();
 		searchedPane.setViewportView(searchList);
 	
 		JList<File> dupeList = new JList<File>();
@@ -123,13 +128,24 @@ public class AppWindow {
 	            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	            int option = fileChooser.showOpenDialog(frame);
 	            if(option == JFileChooser.APPROVE_OPTION){
-	               File searchFolder = fileChooser.getSelectedFile();
+	               searchFolder = fileChooser.getSelectedFile();
 	               searchFolderName.setText("Folder Selected: " + searchFolder.getPath());
 	            }else{
 	            	searchFolderName.setText("Open command canceled");
 	            }
 	         }
 	      });
+		
+		searchButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Searcher searcher = new Searcher();
+				if(searchFolder != null) {
+					searcher.doSearch(searchFolder);
+					searchList.setModel(searcher.getHasDupesModel());
+				}
+			}
+		});
 	}
 
 

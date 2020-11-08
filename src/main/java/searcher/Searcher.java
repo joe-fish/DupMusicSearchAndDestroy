@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.DefaultListModel;
+
 /**
  * This class is used to find all the duplicate musicFiles in the search folder
  * hierarchy.  
@@ -13,10 +15,11 @@ import java.util.List;
  */
 public class  Searcher {
 	
-	List<MusicItem> searchList;
-	List<MusicItem> hasDupesList;
+	private List<MusicItem> searchList;
+	private List<MusicItem> hasDupesList;
 	private String[] extensionsNames = {"ape", "tta", "mp3", "aac", "ogg", "flac", 
 			"alac", "wav", "aiff", "dsd", "pcm", "wma"};
+	private DefaultListModel<MusicItem> hasDupesModel = new  DefaultListModel<MusicItem>();
 	
 	
 	/**
@@ -30,12 +33,12 @@ public class  Searcher {
 	 * 
 	 * @return The hasDupesList that is rendered in the top half of the application window. 
 	 */
-	public List<MusicItem>  doSearch(File searchFolder) {
+	public void doSearch(File searchFolder) {
 		
 		this.searchList = buildList(searchFolder);
 		this.hasDupesList = new ArrayList<MusicItem>();
 		this.searchList.forEach(item -> dupeSearch(item));
-		return this.hasDupesList;
+		hasDupesList.forEach(item -> hasDupesModel.addElement(item));
 		
 	}
 	
@@ -64,6 +67,8 @@ public class  Searcher {
 		}
 		return searchList;
 	}
+	
+
 	
 	/**
 	 * Called on each MusicItem. A search is made through all
@@ -107,6 +112,10 @@ public class  Searcher {
 			}
 		}
 		return songName;
+	}
+
+	public DefaultListModel<MusicItem> getHasDupesModel() {
+		return hasDupesModel;
 	}
 	
 }
