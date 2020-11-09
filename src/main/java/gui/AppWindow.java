@@ -18,11 +18,12 @@ import searcher.Searcher;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.AbstractAction;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import java.io.File;
+import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.DefaultListModel;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 import javax.swing.JMenu;
@@ -30,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
 
 public class AppWindow {
 
@@ -42,20 +44,19 @@ public class AppWindow {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					AppWindow window = new AppWindow();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				AppWindow window = new AppWindow();
+				window.frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
 
 	/**
 	 * Create the application.
+	 * @wbp.parser.entryPoint
 	 */
 	public AppWindow() {
 		initialize();
@@ -93,7 +94,7 @@ public class AppWindow {
 		JLabel statusLabel = new JLabel("Status: ");
 		statusPanel.add(statusLabel);
 		
-		JLabel status = new JLabel("Test status This is a test");
+		JLabel status = new JLabel("");
 		statusPanel.add(status);
 		
 		
@@ -121,32 +122,47 @@ public class AppWindow {
 		JList<File> dupeList = new JList<File>();
 		searchedPane.setViewportView(dupeList);
 		
-		selectSearchRootButton.addActionListener(new ActionListener() {
-	         @Override
-	         public void actionPerformed(ActionEvent e) {
-	            JFileChooser fileChooser = new JFileChooser();
-	            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	            int option = fileChooser.showOpenDialog(frame);
-	            if(option == JFileChooser.APPROVE_OPTION){
-	               searchFolder = fileChooser.getSelectedFile();
-	               searchFolderName.setText("Folder Selected: " + searchFolder.getPath());
-	            }else{
-	            	searchFolderName.setText("Open command canceled");
-	            }
-	         }
-	      });
+		selectSearchRootButton.addActionListener(e -> {
+		    JFileChooser fileChooser = new JFileChooser();
+		    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    int option = fileChooser.showOpenDialog(frame);
+		    if(option == JFileChooser.APPROVE_OPTION){
+		       searchFolder = fileChooser.getSelectedFile();
+		       searchFolderName.setText("Folder Selected: " + searchFolder.getPath());
+		    }else{
+		    	searchFolderName.setText("Select Search Root canceled");
+		    }
+		 });
 		
-		searchButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Searcher searcher = new Searcher();
-				if(searchFolder != null) {
-					searcher.doSearch(searchFolder);
-					searchList.setModel(searcher.getHasDupesModel());
-				}
+		mntmNewMenuItem.addActionListener(e -> {
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			int option = fileChooser.showOpenDialog(frame);
+			if(option == JFileChooser.APPROVE_OPTION){
+				searchFolder = fileChooser.getSelectedFile();
+				searchFolderName.setText("Folder Selected: " + searchFolder.getPath());
+			}else{
+				searchFolderName.setText("Select Search Root canceled");
 			}
 		});
+		
+		searchButton.addActionListener(e -> {
+			Searcher searcher = new Searcher();
+			if(searchFolder != null) {
+				searcher.doSearch(searchFolder);
+				DefaultListModel model = searcher.getHasDupesModel();
+				searchList.setModel(searcher.getHasDupesModel());
+				searchedPane.setViewportView(searchList);
+				status.setText(Integer.toString(model.getSize())+" Duplicates found");
+			}
+		});
+		
+		
+		searchList.addListSelectionListener(e -> {
+			MusicItem selected = searchList.getSelectedValue();
+			DefaultListModel<File> dupes = selected.getDuplicatesModel();
+			dupeList.setModel(dupes);
+			dupePane.setViewportView(dupeList);
+		});
 	}
-
-
 }

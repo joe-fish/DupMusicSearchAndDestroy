@@ -58,10 +58,14 @@ public class  Searcher {
 					searchList.addAll(buildList(file));
 				} 
 				else {
-					MusicItem item = new MusicItem();
-					item.setMusicFile(file);
-					item.setSongName(parseForSong(item));
-					searchList.add(item);
+					List<String> extensions = Arrays.asList(this.extensionsNames);
+					String[] parsed = file.getName().split("\\.");
+					if(extensions.contains(parsed[1])) {
+						MusicItem item = new MusicItem();
+						item.setMusicFile(file);
+						item.setSongName(parseForSong(item));
+						searchList.add(item);
+					}
 				}
 			}
 		}
@@ -77,12 +81,14 @@ public class  Searcher {
 	 */
 	private void dupeSearch(MusicItem item) {
 		for(MusicItem mItem :searchList) {
-			if(mItem.getMusicItemFileName().contains(item.getSongName())) {
+			if(mItem.getSongName().contains(item.getSongName())) {
 				//don't addDupe for same music file
 				if(!(item.equals(mItem))) {
 					item.addDupe(mItem.getMusicFile());
 					item.setHasDupes(true);
-					hasDupesList.add(item);
+					if(!(hasDupesList.contains(item))) {
+						hasDupesList.add(item);
+					}
 				}
 			}
 		}
@@ -98,17 +104,19 @@ public class  Searcher {
 	 */
 	private String parseForSong(MusicItem item) {
 
-		List<String> extensions = Arrays.asList(this.extensionsNames);
 		String fileName = item.getMusicItemFileName();
 		String[] parsed = fileName.split("\\.");
 		String songName = "";
 		if(parsed.length == 2) {
-			if(extensions.contains(parsed[1])) {
+			String track = parsed[0];
+			if(track.matches(".*Track.*")) {
+				songName = track;
+			}else {
+				
 				String[] alphaOnly = parsed[0].split("[0-9]");
 				for (String token : alphaOnly) {
 					songName = songName + token;
 				}
-				
 			}
 		}
 		return songName;

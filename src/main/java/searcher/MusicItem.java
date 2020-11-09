@@ -54,4 +54,8 @@ public class MusicItem {
 		this.songName = songName;
 	}
 	
+	public String toString() {
+		return musicFile.getPath();
+	}
+	
 }
