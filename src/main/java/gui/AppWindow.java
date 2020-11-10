@@ -5,9 +5,12 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -22,14 +25,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
+
 import searcher.MusicItem;
 import searcher.Searcher;
-import javax.swing.AbstractAction;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.Action;
-
+/**
+ * Builds the application window and adds listeners to perform operations.
+ * @author joefischer
+ *
+ */
 public class AppWindow {
 
 	private JFrame frame;
@@ -40,7 +44,7 @@ public class AppWindow {
 	private String appVersion = "1.0";
 
 	/**
-	 * Launch the application.
+	 * Launch the application. Program entry point
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -54,7 +58,7 @@ public class AppWindow {
 	}
 
 	/**
-	 * Create the application.
+	 * Creates the application window.
 	 * 
 	 * @wbp.parser.entryPoint
 	 */
@@ -63,11 +67,11 @@ public class AppWindow {
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Define and Initialize the contents of the frame.
 	 */
 	private void initialize() {
 		frame = new JFrame("Dupe Music Search and Destroy");
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 1200, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -128,20 +132,19 @@ public class AppWindow {
 
 		// Build Status line
 		JPanel statusPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints statusLabelConstraint = new GridBagConstraints();
-		statusLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
-		statusLabelConstraint.gridheight = 1;
-		statusLabelConstraint.gridx = 0;
-		statusLabelConstraint.gridy = 0;
-		JLabel statusLabel = new JLabel("Status: ");
 		GridBagConstraints statusConstraint = new GridBagConstraints();
+		statusConstraint.fill = GridBagConstraints.HORIZONTAL;
+		statusConstraint.gridheight = 1;
+		statusConstraint.gridx = 0;
+		statusConstraint.gridy = 0;
+		JLabel statusLabel = new JLabel("Status: ");
 		statusPanel.add(statusLabel, statusConstraint);
 		statusConstraint.gridx = 1;
 		statusConstraint.gridy = 0;
 		statusConstraint.weightx = 0.2;
 		statusConstraint.weighty = 0.2;
 		status = new JLabel("");
-		statusPanel.add(status, statusLabelConstraint);
+		statusPanel.add(status, statusConstraint);
 		frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
 		JButton selectSearchRootButton = new JButton("Select Search Root");
@@ -193,6 +196,7 @@ public class AppWindow {
 		searchButton.addActionListener(e -> {
 			Searcher searcher = new Searcher();
 			if (searchFolder != null) {
+				status.setText("Searching");
 				searcher.doSearch(searchFolder);
 				DefaultListModel<MusicItem> model = searcher.getHasDupesModel();
 				searchList.setModel(searcher.getHasDupesModel());
