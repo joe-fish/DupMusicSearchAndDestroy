@@ -1,0 +1,25 @@
+Dupe Music Search and Destroy Help
+
+
+This application is used to locate duplicate music files in a folder structure.  It will 
+search for music files Within the selected folder and all the folders under the selected folder.
+It will them attempt to identify duplicate music files within the folder structure.  
+
+When searching for duplicates, Track number information  within the filenames are ignored.
+
+Note: Music file names that are missing titles and have names like "Track01" or "UnKnown Track 01" 
+are skipped during the search.
+
+To use the application:
+1. Click "Select Search Root", or select "Select Search Root" from the File menu.
+2. A file  will be presented. 
+3. Select the Top Level (Root) folder that contains all the music files and click "Open"
+4. To search for duplicate music files, click the Search Button.
+5. When completed, the upper part of the application window will list all the files that have duplicates.
+6. You can click on each of the files listed, and their respective duplicate files will appear in the lower part of the
+   application window.
+7. You can click on each of the duplicates and press the del key to delete the duplicate. 
+
+ 
+
+

@@ -1,51 +1,43 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-
-import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
-
-import searcher.MusicItem;
-import searcher.Searcher;
-
+import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JToolBar;
+import searcher.MusicItem;
+import searcher.Searcher;
 import javax.swing.AbstractAction;
-
-import java.io.File;
-import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
-import javax.swing.JSplitPane;
-import javax.swing.JScrollPane;
-import javax.swing.JMenu;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class AppWindow {
 
-	private static JFrame frame;
+	private JFrame frame;
 	private final JPanel panel = new JPanel();
 	private File searchFolder = null;
 	private File dupeListSelected = null;
 	private static JLabel status;
+	private String appVersion = "1.0";
 
 	/**
 	 * Launch the application.
@@ -55,8 +47,6 @@ public class AppWindow {
 			try {
 				AppWindow window = new AppWindow();
 				window.frame.setVisible(true);
-				//displayStatus("Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing Testing ");
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -86,9 +76,46 @@ public class AppWindow {
 
 		JMenu fileMenu = new JMenu("File");
 		topMenuBar.add(fileMenu);
+		
+		
+		
 
-		JMenuItem mntmNewMenuItem = new JMenuItem("Select Search Folder");
-		fileMenu.add(mntmNewMenuItem);
+		JMenuItem selectSearchFolderMenuItem = new JMenuItem("Select Search Folder");
+		fileMenu.add(selectSearchFolderMenuItem);
+		
+		JMenuItem exitMenuItem = new JMenuItem("Exit");
+		exitMenuItem.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  System.exit(0);
+			  } 
+			} );
+		fileMenu.add(exitMenuItem);
+		
+		
+		JMenu helpMenu = new JMenu("Help");
+		topMenuBar.add(helpMenu);
+		
+		JMenuItem helpMenuItem = new JMenuItem("Help");
+		helpMenuItem.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { 
+				HelpDialog help = new HelpDialog(frame);
+				help.showHelp();
+			} 
+		} );
+		helpMenu.add(helpMenuItem);
+
+		JMenuItem versionMenuItem = new JMenuItem("Version");
+		versionMenuItem.addActionListener(new ActionListener() { 
+			
+
+			public void actionPerformed(ActionEvent e) { 
+					String message = "Version: "+appVersion;
+					JOptionPane.showMessageDialog(frame, message, "Version Info", JOptionPane.PLAIN_MESSAGE);
+			} 
+		});
+		helpMenu.add(versionMenuItem);
+		
+		
 
 		JPanel controlArea = new JPanel(new GridLayout(2, 0));
 		JToolBar toolBar = new JToolBar();
@@ -101,19 +128,20 @@ public class AppWindow {
 
 		// Build Status line
 		JPanel statusPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints statusConstraint = new GridBagConstraints();
-		statusConstraint.fill = GridBagConstraints.HORIZONTAL;
-		statusConstraint.gridheight=1;
-		statusConstraint.gridx = 0;
-		statusConstraint.gridy = 0;
+		GridBagConstraints statusLabelConstraint = new GridBagConstraints();
+		statusLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
+		statusLabelConstraint.gridheight = 1;
+		statusLabelConstraint.gridx = 0;
+		statusLabelConstraint.gridy = 0;
 		JLabel statusLabel = new JLabel("Status: ");
-		statusPanel.add(statusLabel,statusConstraint );
+		GridBagConstraints statusConstraint = new GridBagConstraints();
+		statusPanel.add(statusLabel, statusConstraint);
 		statusConstraint.gridx = 1;
 		statusConstraint.gridy = 0;
-		statusConstraint.weightx= 0.2;
-		statusConstraint.weighty= 0.2;
+		statusConstraint.weightx = 0.2;
+		statusConstraint.weighty = 0.2;
 		status = new JLabel("");
-		statusPanel.add(status, statusConstraint);
+		statusPanel.add(status, statusLabelConstraint);
 		frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
 		JButton selectSearchRootButton = new JButton("Select Search Root");
@@ -150,7 +178,7 @@ public class AppWindow {
 			}
 		});
 
-		mntmNewMenuItem.addActionListener(e -> {
+		selectSearchFolderMenuItem.addActionListener(e -> {
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			int option = fileChooser.showOpenDialog(frame);
@@ -166,7 +194,7 @@ public class AppWindow {
 			Searcher searcher = new Searcher();
 			if (searchFolder != null) {
 				searcher.doSearch(searchFolder);
-				DefaultListModel model = searcher.getHasDupesModel();
+				DefaultListModel<MusicItem> model = searcher.getHasDupesModel();
 				searchList.setModel(searcher.getHasDupesModel());
 				searchedPane.setViewportView(searchList);
 				status.setText(Integer.toString(model.getSize()) + " Duplicates found");
@@ -190,22 +218,33 @@ public class AppWindow {
 			}
 		});
 
+		
 		dupeList.addKeyListener(new KeyAdapter() {
-			
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_DELETE:
 				case KeyEvent.VK_BACK_SPACE:
-					int a = JOptionPane.showConfirmDialog(frame, "Do you want to delete: "+dupeListSelected.getName(), "Confirm", JOptionPane.YES_NO_OPTION);
+					int a = JOptionPane.showConfirmDialog(frame, "Do you want to delete: " + dupeListSelected.getName(),
+							"Confirm", JOptionPane.YES_NO_OPTION);
 					if (a == JOptionPane.YES_OPTION) {
 						dupeListSelected.delete();
-						status.setText( "Deleted: "+dupeListSelected.getPath());
+						status.setText("Deleted: " + dupeListSelected.getPath());
 					} else {
-						//do nothing
-					}			
+						// do nothing
+					}
 					break;
 				}
 			}
 		});
 	}
+	
+//	private class SwingAction extends AbstractAction {
+//		public SwingAction() {
+//			putValue(NAME, "SwingAction");
+//			putValue(SHORT_DESCRIPTION, "Some short description");
+//		}
+//		public void actionPerformed(ActionEvent e) {
+//		}
+//	}
+	
 }
