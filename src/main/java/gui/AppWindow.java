@@ -31,6 +31,7 @@ import searcher.Searcher;
 
 /**
  * Builds the application window and adds listeners to perform operations.
+ * 
  * @author joefischer
  *
  */
@@ -67,7 +68,8 @@ public class AppWindow {
 	}
 
 	/**
-	 * Define and Initialize the contents of the frame.
+	 * Define and Initialize the contents of the frame and adds the
+	 * Listeners
 	 */
 	private void initialize() {
 		frame = new JFrame("Dupe Music Search and Destroy");
@@ -80,46 +82,26 @@ public class AppWindow {
 
 		JMenu fileMenu = new JMenu("File");
 		topMenuBar.add(fileMenu);
-		
-		
-		
 
 		JMenuItem selectSearchFolderMenuItem = new JMenuItem("Select Search Folder");
 		fileMenu.add(selectSearchFolderMenuItem);
-		
+
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		exitMenuItem.addActionListener(new ActionListener() { 
-			  public void actionPerformed(ActionEvent e) { 
-				  System.exit(0);
-			  } 
-			} );
+		exitMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 		fileMenu.add(exitMenuItem);
-		
-		
+
 		JMenu helpMenu = new JMenu("Help");
 		topMenuBar.add(helpMenu);
-		
+
 		JMenuItem helpMenuItem = new JMenuItem("Help");
-		helpMenuItem.addActionListener(new ActionListener() { 
-			public void actionPerformed(ActionEvent e) { 
-				HelpDialog help = new HelpDialog(frame);
-				help.showHelp();
-			} 
-		} );
 		helpMenu.add(helpMenuItem);
 
 		JMenuItem versionMenuItem = new JMenuItem("Version");
-		versionMenuItem.addActionListener(new ActionListener() { 
-			
-
-			public void actionPerformed(ActionEvent e) { 
-					String message = "Version: "+appVersion;
-					JOptionPane.showMessageDialog(frame, message, "Version Info", JOptionPane.PLAIN_MESSAGE);
-			} 
-		});
 		helpMenu.add(versionMenuItem);
-		
-		
 
 		JPanel controlArea = new JPanel(new GridLayout(2, 0));
 		JToolBar toolBar = new JToolBar();
@@ -169,6 +151,11 @@ public class AppWindow {
 		JList<File> dupeList = new JList<File>();
 		searchedPane.setViewportView(dupeList);
 
+		/*
+		 * Add Listeners
+		 */
+
+		// Listener for the Select Search folder button
 		selectSearchRootButton.addActionListener(e -> {
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -176,11 +163,13 @@ public class AppWindow {
 			if (option == JFileChooser.APPROVE_OPTION) {
 				searchFolder = fileChooser.getSelectedFile();
 				searchFolderName.setText("Folder Selected: " + searchFolder.getPath());
+				clearDisplayedFiles(searchedPane, dupePane, searchList, dupeList);
 			} else {
 				searchFolderName.setText("Select Search Root canceled");
 			}
 		});
 
+		// Listener for the Select Search folder menu item
 		selectSearchFolderMenuItem.addActionListener(e -> {
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -188,41 +177,41 @@ public class AppWindow {
 			if (option == JFileChooser.APPROVE_OPTION) {
 				searchFolder = fileChooser.getSelectedFile();
 				searchFolderName.setText("Folder Selected: " + searchFolder.getPath());
+				clearDisplayedFiles(searchedPane, dupePane, searchList, dupeList);
 			} else {
 				searchFolderName.setText("Select Search Root canceled");
 			}
 		});
 
-		searchButton.addActionListener(e -> {
-			Searcher searcher = new Searcher();
-			if (searchFolder != null) {
-				status.setText("Searching");
-				searcher.doSearch(searchFolder);
-				DefaultListModel<MusicItem> model = searcher.getHasDupesModel();
-				searchList.setModel(searcher.getHasDupesModel());
-				searchedPane.setViewportView(searchList);
-				status.setText(Integer.toString(model.getSize()) + " Duplicates found");
+		// Listener for Search Biutton
+		searchButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				performSearch(searchedPane, dupePane, searchList, dupeList);
 			}
 		});
 
+		// SelectionListener for the list of files that have duplicates
 		searchList.addListSelectionListener(e -> {
 			MusicItem selected = searchList.getSelectedValue();
 			if (selected != null) {
 				DefaultListModel<File> dupes = selected.getDuplicatesModel();
 				dupeList.setModel(dupes);
 				dupePane.setViewportView(dupeList);
+				status.setText("Selected: " + selected.getMusicItemFileName());
 			}
 		});
 
+		// SelectionListener for duplicate files list
 		dupeList.addListSelectionListener(e -> {
 			dupeListSelected = dupeList.getSelectedValue();
 			if (dupeListSelected != null) {
-				status.setText("Selected: " + dupeListSelected.getPath());
+				status.setText("Selected for Delete: " + dupeListSelected.getPath());
 
 			}
 		});
 
-		
+		// Listener for delete key
 		dupeList.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
@@ -232,7 +221,9 @@ public class AppWindow {
 							"Confirm", JOptionPane.YES_NO_OPTION);
 					if (a == JOptionPane.YES_OPTION) {
 						dupeListSelected.delete();
-						status.setText("Deleted: " + dupeListSelected.getPath());
+						String deletedFile = dupeListSelected.getPath();
+						performSearch(searchedPane, dupePane, searchList, dupeList);
+						status.setText("Deleted: " + deletedFile);
 					} else {
 						// do nothing
 					}
@@ -240,15 +231,80 @@ public class AppWindow {
 				}
 			}
 		});
+
+		//Add Help menu item listener
+		helpMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				HelpDialog help = new HelpDialog(frame);
+				help.showHelp();
+			}
+		});
+		
+		//Add Version Menu item listener
+		versionMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String message = "Version: " + appVersion;
+				JOptionPane.showMessageDialog(frame, message, "Version Info", JOptionPane.PLAIN_MESSAGE);
+			}
+		});
+	
+	} // END OF initialize
+
+	
+
+
+
+	/**
+	 * Performs a search for duplicate music files.
+	 * 
+	 * @param searchedPane The ScrollPane that displays files that have duplicates
+	 * @param dupePane     The ScrollPane that displays the duplicate files
+	 * @param searchList   The JList that renders musicItems that have duplicates
+	 * @param dupeList     The JList that renders the duplicates
+	 */
+	private void performSearch(JScrollPane searchedPane, JScrollPane dupePane, JList<MusicItem> searchList,
+			JList<File> dupeList) {
+		Searcher searcher = new Searcher();
+		if (searchFolder != null) {
+
+			// Set status to searching in case search take a while
+			status.setText("Searching");
+
+			// do the search and update the searchPane with te results
+			searcher.doSearch(searchFolder);
+			DefaultListModel<MusicItem> model = searcher.getHasDupesModel();
+			searchList.setModel(model);
+			searchedPane.setViewportView(searchList);
+
+			// Clear any previous selections
+			dupeList.clearSelection();
+			searchList.clearSelection();
+
+			/*
+			 * Reset the dupeList model to clear display of files that may have been
+			 * previously deleted
+			 */
+			DefaultListModel<File> duplicatesModel = new DefaultListModel<File>();
+			dupeList.setModel(duplicatesModel);
+			dupePane.setViewportView(dupeList);
+
+			// Update status to show the number of duplicates found
+			status.setText(Integer.toString(model.getSize()) + " Duplicates found");
+			frame.revalidate();
+		}
 	}
 	
-//	private class SwingAction extends AbstractAction {
-//		public SwingAction() {
-//			putValue(NAME, "SwingAction");
-//			putValue(SHORT_DESCRIPTION, "Some short description");
-//		}
-//		public void actionPerformed(ActionEvent e) {
-//		}
-//	}
-	
+	private void clearDisplayedFiles(JScrollPane searchedPane, JScrollPane dupePane, JList<MusicItem> searchList,
+			JList<File> dupeList) {
+		
+		DefaultListModel<MusicItem> model = new DefaultListModel<MusicItem>();
+		searchList.setModel(model);
+		searchedPane.setViewportView(searchList);
+		
+		DefaultListModel<File> duplicatesModel = new DefaultListModel<File>();
+		dupeList.setModel(duplicatesModel);
+		dupePane.setViewportView(dupeList);
+		status.setText("");
+		
+	}
 }

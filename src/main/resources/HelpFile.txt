@@ -20,6 +20,19 @@ To use the application:
    application window.
 7. You can click on each of the duplicates and press the del key to delete the duplicate. 
 
+Important: The list of all the files that have duplicates will contain all files that have one or 
+more duplicates.
+So for FILE A and FILE B below, both will appear in the top list. 
+So if FILE A is selected in the top list, FILE B will appear in the bottom list.  
+Alternatively if FILE B is selected in the top list , FILE A will appear in the bottom list. 
  
+So in this example it is preferable to delete the files in the same folder for example:
+either (FILE A and FILE C) or (FILE B and FILE D)   
+
+For
+FILE A: \Music\David Bowie\Aladin Sane\01 - Watch That Man.mp3
+FILE B: \Aladin Sane\Bowie\01 - Watch That Man.mp3
+FILE C: \Music\David Bowie\Aladin Sane\06 - Time.mp3
+FILE D: \Aladin Sane\Bowie\06 - Time.mp3
 
 
