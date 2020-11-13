@@ -11,7 +11,7 @@ public class MusicItem {
 	private DefaultListModel<File> duplicatesModel = new DefaultListModel<File>();
 	
 	private boolean hasDupes = false;
-	private String songName = "";
+	private String trackName = "";
 
 	public void setMusicFile(File musicFile){
 		this.musicFile = musicFile;
@@ -46,12 +46,12 @@ public class MusicItem {
 		this.hasDupes = hasDupes;
 	}
 
-	public String getSongName() {
-		return songName;
+	public String getTrackName() {
+		return trackName;
 	}
 
-	public void setSongName(String songName) {
-		this.songName = songName;
+	public void setTrackName(String songName) {
+		this.trackName = songName;
 	}
 	
 	public String toString() {

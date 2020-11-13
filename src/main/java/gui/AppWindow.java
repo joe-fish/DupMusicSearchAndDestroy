@@ -264,7 +264,7 @@ public class AppWindow {
 	 */
 	private void performSearch(JScrollPane searchedPane, JScrollPane dupePane, JList<MusicItem> searchList,
 			JList<File> dupeList) {
-		Searcher searcher = new Searcher();
+		Searcher searcher = new Searcher(frame);
 		if (searchFolder != null) {
 
 			// Set status to searching in case search take a while
@@ -289,7 +289,7 @@ public class AppWindow {
 			dupePane.setViewportView(dupeList);
 
 			// Update status to show the number of duplicates found
-			status.setText(Integer.toString(model.getSize()) + " Duplicates found");
+			status.setText(Integer.toString(model.getSize()) + " files with duplicates found");
 			frame.revalidate();
 		}
 	}
