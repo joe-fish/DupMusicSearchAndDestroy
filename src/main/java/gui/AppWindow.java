@@ -264,7 +264,7 @@ public class AppWindow {
 	 */
 	private void performSearch(JScrollPane searchedPane, JScrollPane dupePane, JList<MusicItem> searchList,
 			JList<File> dupeList) {
-		Searcher searcher = new Searcher(frame);
+		Searcher searcher = new Searcher();
 		if (searchFolder != null) {
 
 			// Set status to searching in case search take a while
